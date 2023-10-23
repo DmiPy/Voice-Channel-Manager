@@ -6,6 +6,8 @@ import asyncio
 
 import settings
 
+logger = settings.logging.getLogger("bot")
+
 
 def run():
     intents = discord.Intents.default()
@@ -15,14 +17,12 @@ def run():
 
     @bot.event
     async def on_ready():
+        logger.info(f"User: {bot.user} (ID: {bot.user.id})")
         print(f"{bot.user.id} is loading...")
         time.sleep(2)
         print(f"Logged in as {bot.user}")
 
-    bot.run(settings.DISCORD_API_SECRET)
-
-
-
+    bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 
 
 # Press the green button in the gutter to run the script.
