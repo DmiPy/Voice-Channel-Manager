@@ -1,5 +1,5 @@
 import time
-
+from cogs.voice_channels import VoiceChannels
 import discord
 from discord.ext import commands
 import asyncio
@@ -21,7 +21,7 @@ def run():
         print(f"{bot.user.id} is loading...")
         time.sleep(2)
         print(f"Logged in as {bot.user}")
-
+        await bot.load_extension("cogs.voice_channels")
     bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 
 
