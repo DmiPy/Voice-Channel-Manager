@@ -16,7 +16,7 @@ class VoiceChannels(commands.Cog):
         self.check_temporary_channels.start()
 
     @commands.command()
-    async def create_temp_channel(self, ctx):
+    async def create_temp_channel(self, ctx, channel_name: str):
         guild = ctx.guild
         users = ctx.message.mentions
 
@@ -30,7 +30,7 @@ class VoiceChannels(commands.Cog):
         for user in users:
             overwrites[user] = discord.PermissionOverwrite(read_messages=True, connect=True)
 
-        channel = await guild.create_voice_channel("Временный", overwrites=overwrites)
+        channel = await guild.create_voice_channel(channel_name, overwrites=overwrites)
         temporary_channels[channel.id] = TemporaryChannel(channel.id, time.time())
 
     @tasks.loop(minutes=1)
@@ -48,7 +48,10 @@ class VoiceChannels(commands.Cog):
             await channel.delete()
             del temporary_channels[channel.id]
             print(f"Канал {channel.name} был удален.")
-
+            # Отправка сообщения в текстовый канал
+            text_channel = self.bot.get_channel(1163053302171324458)
+            if text_channel:
+                await text_channel.send(f"Канал {channel.name} был удален.")
 
 
 async def setup(bot):
