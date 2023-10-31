@@ -29,8 +29,7 @@ class VoiceChannels(commands.Cog):
             Пример использования:
               !create_temp_channel TemporaryChannel @user1 @user2
             """
-        channel_name = str
-        users = []
+
         if args[0].startswith("<@"):
             users = ctx.message.mentions
             channel_name = "Посиделки🍿📺😏"
@@ -51,26 +50,27 @@ class VoiceChannels(commands.Cog):
         time.sleep(1)
         channel = await guild.create_voice_channel(f"{channel_name}", overwrites=overwrites)
         await self.bot.change_presence(
-            activity=discord.Activity(type=discord.ActivityType.watching, name=f"Канал создан {ctx.author.name}"))
+            activity=discord.Activity(type=discord.ActivityType.watching, name=channel_name))
         temporary_channels[channel.id] = TemporaryChannel(channel.id, time.time())
 
-    @tasks.loop(minutes=2)
+    @tasks.loop(minutes=5)
     async def check_temporary_channels(self):
         channels_to_delete = []
 
         for channel_id, temp_channel in temporary_channels.copy().items():
-            if time.time() - temp_channel.created_at > 30:
+            if time.time() - temp_channel.created_at > 10:
                 channel = self.bot.get_channel(channel_id)
                 if channel and len(channel.members) == 0:
                     channels_to_delete.append(channel)
 
         for channel in channels_to_delete:
             await channel.delete()
-            del temporary_channels[channel.id]
+            time_of_channel = round(time.time() - temporary_channels[channel.id].created_at) / 60
             print(f"Канал '{channel.name}' был удален.")
+            del temporary_channels[channel.id]
             text_channel = self.bot.get_channel(1163053302171324458)
             if text_channel:
-                await text_channel.send(f"Канал {channel.name} был удален.")
+                await text_channel.send(f"Канал {channel.name} был удален спустя {time_of_channel} минут.")
 
 
 async def setup(bot):
